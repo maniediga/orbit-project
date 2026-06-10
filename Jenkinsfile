@@ -13,6 +13,18 @@ pipeline {
             }
         }
 
+        stage('Check Node') {
+            steps {
+                sh '''
+                whoami
+                which node
+                which npm
+                node -v
+                npm -v
+                '''
+            }
+        }
+
         stage('Install Frontend Dependencies') {
             steps {
                 dir('frontend') {
