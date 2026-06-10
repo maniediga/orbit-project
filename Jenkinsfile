@@ -51,10 +51,10 @@ pipeline {
 
         stage('SonarQube Analysis') {
             environment {
-                scannerHome = tool 'SonarScanner'
+                scannerHome = tool 'sonarqube_scanner'
             }
             steps {
-                withSonarQubeEnv('My SonarQube Server') {
+                withSonarQubeEnv('sonarqube_server') {
                     sh '''
                     ${scannerHome}/bin/sonar-scanner \
                     -Dsonar.projectKey=project-management \
