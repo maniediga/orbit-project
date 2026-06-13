@@ -48,7 +48,23 @@ export function convertToTree(projectData, filter, userId) {
 
     // map to access nodes by id
     const map = new Map();
-    const projectExpansionStateString = localStorage.getItem(`project-${projectData.uuid}-expansionState`);
+    let projectExpansionStateString = localStorage.getItem(`project-${projectData.uuid}-expansionState`);
+
+    // For shared projects the new user won't have the state saved locally on their machines.
+    if (!projectExpansionStateString) {
+        const tempProjectExpansionStateJson = {};
+        for (const category of projectData.categories) {
+            tempProjectExpansionStateJson[category.uuid] = {};
+            tempProjectExpansionStateJson[category.uuid].expansionState = TREE_NODE_EXPANSION_STATES.folded;
+            for (const feature of category.features) {
+                tempProjectExpansionStateJson[category.uuid].features = {};
+                tempProjectExpansionStateJson[category.uuid].features[feature.uuid] = TREE_NODE_EXPANSION_STATES.folded;
+            }
+        }
+        const tempProjectExpansionStateString = JSON.stringify(tempProjectExpansionStateJson);
+        localStorage.setItem(`project-${projectData.uuid}-expansionState`, tempProjectExpansionStateString);
+        projectExpansionStateString = tempProjectExpansionStateString;
+    }
     const projectExpansionStateJson = JSON.parse(projectExpansionStateString);
     // root node
     const projectNode = {
@@ -59,7 +75,6 @@ export function convertToTree(projectData, filter, userId) {
         users: projectData.users,
         parentNode: projectData.parentNode,
         upperLayerParNode: projectData.upperLayerParNode,
-        expansionState: projectData.treeNodeExpansionState,
         type: TREE_NODE_TYPES.projectNode,
         color: projectData.color || "bg-white",
         children: [],
