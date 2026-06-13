@@ -16,6 +16,13 @@ export async function getAllNotDeletedProjectCategoriesAndFeatures(projectUuid, 
         select: {
             uuid: true,
             name: true,
+            projectRoles: {
+                select: {
+                    name: true,
+                    writePermission: true,
+                    deletePermission: true,
+                },
+            },
             users: {
                 select: {
                     displayName: true,

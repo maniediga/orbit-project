@@ -71,39 +71,48 @@ model Feature {
 }
 
 model ProjectInvite {
-    id          Int       @id @default(autoincrement()) @map("project_invite_id")
-    inviteCode  String    @map("invite_code") @db.Uuid
-    createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
-    expiresAt   DateTime  @map("expires_at") @db.Timestamp(6)
-    projectUuid String    @map("project_uuid") @db.VarChar(48)
-    project     Project   @relation(fields: [projectUuid], references: [uuid], onDelete: Cascade, onUpdate: NoAction)
+    id            Int       @id @default(autoincrement()) @map("project_invite_id")
+    inviteCode    String    @map("invite_code") @db.Uuid
+    createdAt     DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
+    expiresAt     DateTime  @map("expires_at") @db.Timestamp(6)
+    projectUuid   String    @map("project_uuid") @db.VarChar(48)
+    inviteeUserId Int       @map("invitee_user_id")
+    inviterUserId Int       @map("inviter_user_id")
+    roleId        Int       @map("project_role_id")
+
+    projectInvitee User        @relation("project_invites_invitee_user_idTousers", fields: [inviteeUserId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    projectInviter User        @relation("project_invites_inviter_user_idTousers", fields: [inviterUserId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    project        Project     @relation(fields: [projectUuid], references: [uuid], onDelete: Cascade, onUpdate: NoAction)
+    projectRole    ProjectRole @relation(fields: [roleId], references: [id])
 
     @@map("project_invites")
 }
 
 model ProjectRole {
-    id               Int           @id @default(autoincrement()) @map("project_role_id")
-    name             String        @map("project_role_name") @db.VarChar(64)
-    isDeleted        Boolean       @default(false) @map("is_deleted")
-    deletedAt        DateTime?     @map("deleted_at") @db.Timestamp(6)
-    createdAt        DateTime?     @default(now()) @map("created_at") @db.Timestamp(6)
-    updatedAt        DateTime?     @updatedAt @map("updated_at") @db.Timestamp(6)
-    writePermission  Boolean       @default(false) @map("write_permission")
-    deletePermission Boolean       @default(false) @map("delete_permission")
-    projectUuid      String        @map("project_uuid") @db.VarChar(48)
-    project          Project       @relation(fields: [projectUuid], references: [uuid], onDelete: Cascade, onUpdate: NoAction)
+    id               Int             @id @default(autoincrement()) @map("project_role_id")
+    name             String          @map("project_role_name") @db.VarChar(64)
+    isDeleted        Boolean         @default(false) @map("is_deleted")
+    deletedAt        DateTime?       @map("deleted_at") @db.Timestamp(6)
+    createdAt        DateTime?       @default(now()) @map("created_at") @db.Timestamp(6)
+    updatedAt        DateTime?       @updatedAt @map("updated_at") @db.Timestamp(6)
+    writePermission  Boolean         @default(false) @map("write_permission")
+    deletePermission Boolean         @default(false) @map("delete_permission")
+    projectUuid      String          @map("project_uuid") @db.VarChar(48)
+    project          Project         @relation(fields: [projectUuid], references: [uuid], onDelete: Cascade, onUpdate: NoAction)
     projectUsers     projectUser[]
+    projectInvites   ProjectInvite[]
 
+    @@unique([name, projectUuid], map: "role_name_project_uuid_unique")
     @@map("project_roles")
 }
 
 model projectUser {
-    userId       Int         @map("user_id")
-    roleId       Int         @map("project_role_id")
-    projectUuid  String      @map("project_uuid") @db.VarChar(48)
-    project      Project     @relation(fields: [projectUuid], references: [uuid], onDelete: Cascade, onUpdate: NoAction)
-    projectRoles ProjectRole @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_project_project_role_id_fkey")
-    users        User        @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "user_project_user_id_fkey")
+    userId      Int         @map("user_id")
+    roleId      Int         @map("project_role_id")
+    projectUuid String      @map("project_uuid") @db.VarChar(48)
+    project     Project     @relation(fields: [projectUuid], references: [uuid], onDelete: Cascade, onUpdate: NoAction)
+    projectRole ProjectRole @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_project_project_role_id_fkey")
+    users       User        @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "user_project_user_id_fkey")
 
     @@id([userId, projectUuid], map: "pkey_project_users")
     @@map("project_users")
@@ -151,6 +160,8 @@ model User {
     projectMemberships         projectUser[]
     userEmailVerificationToken userEmailVerificationToken[]
     project                    Project?                     @relation(fields: [activeProjectUuid], references: [uuid], onDelete: NoAction, onUpdate: NoAction)
+    receivedInvites            ProjectInvite[]              @relation("project_invites_invitee_user_idTousers")
+    sentInvites                ProjectInvite[]              @relation("project_invites_inviter_user_idTousers")
 
     @@map("users")
 }

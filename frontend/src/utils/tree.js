@@ -44,9 +44,9 @@ export const TREE_NODE_TEXT_COLORS = Object.freeze({
 });
 
 export function convertToTree(projectData, filter, userId) {
-    // map to access nodes by id
     if (!projectData) return null;
 
+    // map to access nodes by id
     const map = new Map();
     const projectExpansionStateString = localStorage.getItem(`project-${projectData.uuid}-expansionState`);
     const projectExpansionStateJson = JSON.parse(projectExpansionStateString);
@@ -54,6 +54,7 @@ export function convertToTree(projectData, filter, userId) {
     const projectNode = {
         uuid: projectData.uuid,
         name: projectData.name,
+        roles: projectData.projectRoles,
         description: projectData.description,
         users: projectData.users,
         parentNode: projectData.parentNode,

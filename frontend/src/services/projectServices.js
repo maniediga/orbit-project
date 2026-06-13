@@ -1,14 +1,94 @@
 import apiClient from "#config/api";
 
-export async function inviteUsers(projectUuid, emails) {
+export async function getUserProjectInvites() {
     try {
-        const response = await apiClient.post(`/projectUsers/${projectUuid}/invite-users`, {
-            userEmails: emails,
+        const response = await apiClient.get("/user/me/project-invites");
+        return response.data;
+    } catch (err) {
+        return err.response.data || "Couldn't fetch invites";
+    }
+}
+
+export async function getUserDetailsForProject(projectUuid) {
+    try {
+        const response = await apiClient.get(`/user/me/project/${projectUuid}`);
+        return response.data;
+    } catch (err) {
+        return err.response.data || "Couldn't fetch user data";
+    }
+}
+
+export async function inviteUser(projectUuid, email, roleName) {
+    try {
+        const response = await apiClient.post(`/projectUsers/${projectUuid}/invite-user`, {
+            userEmail: email,
+            roleName,
         });
 
         return response.data;
     } catch (err) {
         return err.response.data || "couldn't invite users";
+    }
+}
+
+export async function acceptProjectInvite(inviteCode) {
+    try {
+        const response = await apiClient.post(`/projectUsers/accept-invite`, {
+            inviteCode,
+        });
+        return response.data;
+    } catch (err) {
+        console.log(err);
+        return err.response.data || "Couldn't accept project invite";
+    }
+}
+
+export async function rejectProjectInvite(inviteCode) {
+    try {
+        const response = await apiClient.post(`/projectUsers/reject-invite`, {
+            inviteCode,
+        });
+        return response.data;
+    } catch (err) {
+        return err.response.data || "Couldn't reject project invite";
+    }
+}
+
+export async function createProjectRole(projectUuid, roleName, writePermission, deletePermission) {
+    try {
+        const response = await apiClient.post("/projectRole/create", {
+            projectUuid,
+            roleName,
+            writePermission,
+            deletePermission,
+        });
+        return response.data;
+    } catch (err) {
+        return err.response.data || "Couldn't create role";
+    }
+}
+
+export async function editProjectRole(oldRoleName, projectUuid, newRoleName, writePermission, deletePermission) {
+    try {
+        const response = await apiClient.post("/projectRole/edit", {
+            oldRoleName,
+            projectUuid,
+            newRoleName,
+            writePermission,
+            deletePermission,
+        });
+        return response.data;
+    } catch (err) {
+        return err.response.data || "Couldn't edit role";
+    }
+}
+
+export async function getProjectRoles(projectUuid) {
+    try {
+        const response = await apiClient.get(`/project-roles/${projectUuid}/get-roles`);
+        return response.data;
+    } catch (err) {
+        return err.response.data || "Couldn't get project roles";
     }
 }
 

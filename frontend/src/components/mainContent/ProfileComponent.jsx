@@ -28,6 +28,11 @@ export function getUserDetailsLeftSection(displayName, isVerified, navigate) {
                     extraClasses="mt-6"
                 />
             </div >}
+            <NavButton
+                navigateTo="invites"
+                buttonText="Project Invites"
+                extraClasses="mt-8"
+            />
         </section >
     )
 }

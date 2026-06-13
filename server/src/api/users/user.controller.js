@@ -37,6 +37,21 @@ export async function getUserDetails(req, res) {
     );
 }
 
+export async function getUserDetailsForProject(req, res) {
+    const userId = req.userId;
+    const { projectUuid } = req.params;
+    const [user] = await userServices.getUserDetailsForProject(userId, projectUuid);
+    if (!user) throw new ApiError(HTTP_RESPONSE_CODE.BAD_REQUEST, "User with given id doesn't exist for the project");
+
+    res.status(HTTP_RESPONSE_CODE.SUCCESS).json(
+        new ApiResponse(HTTP_RESPONSE_CODE.SUCCESS, {
+            displayName: user.displayname,
+            role: user.role,
+            email: user.email,
+        }),
+    );
+}
+
 export async function updateUserActiveProject(req, res) {
     const userId = req.userId;
     const { projectUuid } = req.body;
@@ -54,4 +69,10 @@ export async function updateUserActiveProject(req, res) {
             "User active project updated",
         ),
     );
+}
+
+export async function getUserProjectInvites(req, res) {
+    const userId = req.userId;
+    const invites = await userServices.getUserProjectInvites(userId);
+    res.status(HTTP_RESPONSE_CODE.SUCCESS).json(new ApiResponse(HTTP_RESPONSE_CODE.SUCCESS, invites));
 }

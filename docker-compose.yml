@@ -10,6 +10,8 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    networks:
+      - project-management-net
   server:
     build: ./server
     container_name: server
@@ -21,6 +23,8 @@ services:
     volumes:
       - ./server:/app
       - /app/node_modules
+    networks:
+      - project-management-net
 
   postgres:
     image: postgis/postgis:17-3.5
@@ -33,6 +37,12 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - project-management-net
+
+networks:
+  project-management-net:
+    driver: bridge
 
 volumes:
   postgres_data:

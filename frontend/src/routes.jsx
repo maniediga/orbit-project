@@ -9,6 +9,8 @@ import KanBhanComponent from "#components/mainContent/KanbhanComponent";
 import TreeViewComponent from "#components/mainContent/TreeViewComponent";
 import ProfileComponent from "#components/mainContent/ProfileComponent";
 
+import { Invites } from "#components/invites";
+
 import * as AuthForms from "#components/forms/AuthForms";
 import * as ProjectForms from "#components/forms/ProjectForms";
 import * as UserForms from "#components/forms/UserForms";
@@ -21,6 +23,8 @@ import CategoryDetails from "#components/nodeDetails/CategoryDetails";
 import FeatureDetails from "#components/nodeDetails/FeatureDetails";
 import ProjectDetails from "#components/nodeDetails/ProjectDetails";
 
+import { loader as loadProjectInvites } from "#components/invites";
+import { loader as loadUserDetailsForProject } from "#components/nodeDetails/ProjectDetails";
 import { loader as loadUserProjects } from "#components/mainContent/ProjectComponent";
 import { loader as loadUserDetails } from "./App.jsx";
 import { loader as loadProjectData } from "#components/mainContent/TreeViewComponent";
@@ -44,7 +48,11 @@ const routes = [
                 element: <ProfileComponent />,
                 children: [
                     { path: "change-display-name", element: <PopUpSmall>{<UserForms.ChangeDisplayNameForm />}</PopUpSmall> },
-                    { path: "log-out", element: <PopUpSmall>{<AuthForms.LogOutConfirmation />}</PopUpSmall> }
+                    { path: "log-out", element: <PopUpSmall>{<AuthForms.LogOutConfirmation />}</PopUpSmall> },
+                    {
+                        path: "invites", element: <PopUpMedium><Invites /></PopUpMedium>,
+                        loader: loadProjectInvites
+                    },
                 ],
             },
             // verification protected routes are wrapped verification protected layout not accessible without email verification
@@ -70,12 +78,21 @@ const routes = [
                         loader: loadProjectData,
                         children: [
                             {
+                                path: "node/:projectUuid/add-role",
+                                element: <PopUpSmall><ProjectForms.AddRoleForm /></PopUpSmall>
+                            },
+                            {
+                                path: "node/:projectUuid/edit-role/:roleName",
+                                element: <PopUpSmall><ProjectForms.EditRoleForm /></PopUpSmall>
+                            },
+                            {
                                 path: "node/:projectUuid/invite-users",
-                                element: <PopUpSmall><ProjectForms.InviteUsersForm /></PopUpSmall>
+                                element: <PopUpSmall><ProjectForms.InviteUserForm /></PopUpSmall>
                             },
                             {
                                 path: "node/:projectUuid/view-project-details",
-                                element: <PopUpMedium><ProjectDetails /></PopUpMedium>
+                                element: <PopUpMedium><ProjectDetails /></PopUpMedium>,
+                                loader: loadUserDetailsForProject,
                             },
                             {
                                 path: "node/:nodeUuid/view-category-details",
